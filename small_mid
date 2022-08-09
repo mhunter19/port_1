@@ -1,0 +1,85 @@
+install.packages('PortfolioAnalytics')
+install.packages('ROI')
+install.packages('ROI.plugin.quadprog')
+install.packages('ROI.plugin.glpk')
+install.packages('quantmod')
+library(PortfolioAnalytics)
+library(ROI)
+library(ROI.plugin.quadprog)
+library(ROI.plugin.glpk)
+library(quantmod)
+library(PerformanceAnalytics)
+library(quadprog)
+
+#tickers <- c('XOM','ET','MRO','OXY','KMI','DVN','CVX','COP','SU','MPC','SLB','HAL','BKR','LPX','CLF','X','FCX','AA','NEM','IP','BLL','CCK','PKG','SEE','VMC','MLM','DOW',
+#             'MOS','CF','DD','SHW','PPG','SPCE','BA','RTX','LMT','LHX','GD','NOC','FDX','UPS','AAL','DAL','UAL','LUV','CARR','MAS','OC','AUR','PBI','ROL','WM','FLR','FCEL','PLUG',
+#             'CHPT','RUN','EMR','GE','HON','MMM','CAT','DE','SWK','ITW','VRSK','RHI','UBER','LYFT','HTZ','UNP','NSC','ODFL','FAST','URI','NKE','VFC','TJX','HD','LOW','ROST','M',
+#             'JWN','KSS','TGT','YETI','EBAY','DASH','AMZN','DHI','LEN','WHR','CCL','NCLH','DKNG','LVS','SBUX','MGM','ABNB','RCL','MCD','CZR','HLT','MAR','LKQ','GPC','F','LCID','TSLA',
+#             'GM','QS','LAZR','GT','BWA','MO','PM','EL','COTY','PG','CL','KMB','CHD','CLX','MDLZ','KHC','CAG','GIS','ADM','TSN','WMT','KR','WBA','SYY','COST','KO','KDP','PEP','MNST',
+#             'TAP','STZ','BF-B','SAM','PFE','MRK','BMY','VTRS','JNJ','LLY','AVTR','DHR','A','TMO','ILMN','CERN','TDOC','VEEV','CVS','CNC','UNH','CI','ANTM','HUM','BSX','ABT','SYK',
+#             'ISRG','MRNA','GILD','ABBV','NVAX','BNTX','AMGN','RKT','AIG','MET','AFL','MMC','BRK-B','SOFI','SYF','AXP','ALLY','MS','COIN','BK','BX','GS','KKR','CME','BLK','BAC',
+#             'JPM','AAPL','DELL','MSFT','ORCL','CRM','TTD','ZM','CRWD','U','DBX','DDOG','ADBE','AMD','NVDA','INTC','MU','QCOM','AMAT','AVGO','PYPL','V','SQ','IBM','MA','TWLO','GLW',
+#             'APH','CSCO','TMUS','CMCSA','VIAC','SNAP','FB','TWTR','GOOGL','DIS','NFLX','T','VZ','AWK','D','ED','SRE','AES','VST','BEPC','ATO','UGI','PCG','NEE','EXC','SO','DUK',
+#             'CBRE','Z','TOTL','SPAB','SPIB','SPLB','BWX','WIP','BWZ','EBND','SPIP','TIPX','JNK','SRLN','SJNK','SPHY','EWA','EWC','EWD','EWG','EWH','EWI','EWJ','EWK','EWL','EWM',
+#             'EWN','EWO','EWP','EWQ','EWS','EWT','EWU','EWW','EWY','EWZ','EZA','SPEU','EUM','DOG','PSQ','MYY','SH','SBB','RWM','EFZ','SEF','DDG','TBF','REK','SBM','YXI','SJB','TBX',
+#             'EUFX','EWA', 'EWC', 'EWD', 'EWG', 'EWH','EWI', 'EWJ', 'EWK', 'EWL', 'EWM', 'EWN', 'EWO', 'EWP', 'EWQ', 'EWS', 'EWT', 'EWU', 'EWW', 'EWY', 'EWZ', 'EZA', 'SPEU',
+#             'EUM', 'DOG', 'PSQ', 'MYY', 'SH', 'SBB', 'RWM', 'EFZ', 'SEF', 'DDG', 'TBF', 'REK', 'SBM', 'YXI', 'SJB', 'TBX', 'EUFX','TOTL', 'SPAB', 'SPIB', 'SPLB', 'BWX', 'WIP',
+#             'BWZ', 'EBND','SPIP', 'TIPX', 'JNK', 'SRLN', 'SJNK', 'SPHY')
+
+tickers <- c('WSM','IMPUY','NRG','CLF','AA','RHI','BBWI','GGB','OLN','SEIC','TX','SBSW','QDEL','MTDR',
+             'MRVI','WU','MGY','ZIM','UFPI','X','BAK','LPX','BIPC','DQ','SAFM','ATKR','CROX','DDS','VIR',
+             'MLI','CRK','MATX','STEP','KLIC','WIRE','BCC','HLF','APAM','SHOO','BRDG','AMR','QFIN','EAF',
+             'MED','WGO','FLGT','VGR','VSTO','HCC','RFP','TNEYF','BKE','GCMG','MBUU','HIMX','FINV','QURE',
+             'RGR','GSM','DFIN','CCRN','INVA','RYI','PRG','SNBR','TMST','ITOS','CAN','BXC','GPRK','SD',
+             'SWBI','SENS','IIIN','METC','HDSN','EGY','UXIN','TGA','CLNN','EPM','CODX','PRPH','ARREF',
+             'RVP','GTII','HMENF','MKTW','PHAS','AQST','GRTX','NYMX','ACRX','MITO','PALI','NLSP','CMGR')
+
+portfolioPrices <- NULL
+for(ticker in tickers) {
+  portfolioPrices <- cbind(portfolioPrices,
+                           getSymbols.yahoo(ticker, from='2018-01-01', periodicity = 'daily', auto.assign=FALSE)[,6])
+}
+head(portfolioPrices)
+xts(portfolioPrices)
+dif_port <- na.omit(ROC(portfolioPrices))
+head(dif_port)
+is.xts(dif_port)
+
+port_spec <- portfolio.spec(colnames(dif_port))
+port_spec <- add.constraint(portfolio = port_spec, type = "full_investment")
+port_spec <- add.constraint(portfolio = port_spec, type = "long_only")
+port_spec <- add.constraint(portfolio = port_spec, type="box", min=0.00, max=0.10)
+#port_spec <- add.objective(portfolio = port_spec, type="return", name="mean")
+#port_spec <- add.objective(portfolio = port_spec, type="risk", name="StdDev")
+port_spec <- add.objective(portfolio = port_spec, type="risk", name="var")
+opt_rebal <- optimize.portfolio(R = dif_port, portfolio = port_spec, optimize_method = "random", maxSharpe = TRUE,maxSTARR=TRUE,search_size = 10000, trace = TRUE, rp=NULL)
+print(opt_rebal)
+sort(opt_rebal$weights[opt_rebal$weights>0.01])
+extractWeights(opt_rebal)
+chart.Weights(opt_rebal)
+
+opt_rebal[1]
+
+
+######################################################################
+
+sp500prices <- getSymbols.yahoo("SPY", from='2018-01-01', periodicity = 'daily', auto.assign=FALSE)[,6]
+sp500Rets <- na.omit(ROC(sp500prices))
+sp500Rets <- as.xts(sp500Rets)
+
+
+rebal_returns <- Return.portfolio(dif_port, weights=opt_rebal)
+head(rebal_returns)
+
+rets_df <- cbind(rebal_returns, sp500Rets)
+rets_df
+charts.PerformanceSummary(rets_df, main="P/L Over Time")
+
+######################################################################
+
+port_spec <- add.constraint(portfolio = port_spec, type="position_limit", max_pos=20)
+
+dif_port <- na.omit(portfolioPrices)
+dif_port <- diff(portfolioPrices)
+
+port_spec <- add.constraint(portfolio = port_spec, type="position_limit", max_pos=20)
